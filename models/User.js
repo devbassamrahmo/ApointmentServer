@@ -20,6 +20,11 @@ const UserSchema = new mongoose.Schema({
         enum: ['patient', 'doctor', 'admin'],
         default: 'patient',
     },
+    gender: {
+        type: String,
+        enum: ['male', 'female'],
+        required: true
+    },
     createdAt: {
         type: Date,
         default: Date.now,

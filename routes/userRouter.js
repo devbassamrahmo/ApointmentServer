@@ -2,11 +2,14 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
+const salt = 10;
 // Register a new user
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role , gender } = req.body;
 
         // Check if user already exists
         const existingUser = await User.findOne({ email });
@@ -15,7 +18,9 @@ router.post('/register', async (req, res) => {
         }
 
         // Create a new user
-        const newUser = new User({ name, email, password, role });
+
+        const encPassword = await bcrypt.hash(password , salt);
+        const newUser = new User({ name, email, password : encPassword, role , gender });
         await newUser.save();
 
         res.status(201).json({ message: 'User registered successfully', user: newUser });
@@ -25,26 +30,37 @@ router.post('/register', async (req, res) => {
 });
 
 // Login a user
+
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Find the user by email
+        // Check if the user exists
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'User not found' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Check if the password matches (in a real-world scenario, you would hash the password)
-        if (user.password !== password) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+        // Verify password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        res.status(200).json({ message: 'Login successful', user });
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: user._id , username : user.username },process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Remove password before sending the user object
+        const { password: _, ...userWithoutPassword } = user.toObject();
+
+        res.status(200).json({ message: 'Login successful', user: userWithoutPassword, token });
     } catch (error) {
-        res.status(500).json({ message: 'Error logging in', error: error.message });
+        console.error('Login Error:', error);
+        res.status(500).json({ message: 'Server error. Please try again later.' });
     }
 });
+
 
 // Get all users
 router.get('/', async (req, res) => {
@@ -84,6 +100,7 @@ router.put('/:id', async (req, res) => {
         res.status(200).json({ message: 'User updated successfully', user: updatedUser });
     } catch (error) {
         res.status(500).json({ message: 'Error updating user', error: error.message });
+        
     }
 });
 
