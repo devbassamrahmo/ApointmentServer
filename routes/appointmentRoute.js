@@ -1,8 +1,8 @@
 const express = require('express');
-const Appointment = require('../models/Appointment');
+const Appointment = require('../models/Appointments');
 const User = require('../models/User');
 const { authenticateUser } = require('../middlewares/auth'); 
-
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 /**
@@ -10,8 +10,9 @@ const router = express.Router();
  * @desc    Book an appointment (Patient)
  * @access  Private (Only Patients)
  */
-router.post('/', authenticateUser, async (req, res) => {
+router.post('/', authenticateUser ,  async (req, res) => {
     try {
+        
         const { doctorId, date, time, reason } = req.body;
         
         

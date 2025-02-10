@@ -27,5 +27,7 @@ mongoose.connect(process.env.DB_URL).then(()=>{
 // Routes
 const userRouter = require('./routes/userRouter')
 app.use('/user' , userRouter);
+const appointmentRoute = require('./routes/appointmentRoute');
+app.use('/appointment' , appointmentRoute);
 
 // Start the server

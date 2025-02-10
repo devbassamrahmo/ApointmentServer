@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const salt = 10;
+
 // Register a new user
 router.post('/register', async (req, res) => {
     try {
@@ -49,7 +50,7 @@ router.post('/login', async (req, res) => {
 
         // Generate JWT Token
         const token = jwt.sign(
-            { id: user._id , username : user.username },process.env.JWT_SECRET, { expiresIn: '1h' });
+            { id: user._id , name : user.name , role : user.role},process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // Remove password before sending the user object
         const { password: _, ...userWithoutPassword } = user.toObject();

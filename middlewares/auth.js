@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const authenticateUser = async (req, res, next) => {
-    const token = req.header('Authorization');
+    const token = req.header('token');
     if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' });
 
     try {
