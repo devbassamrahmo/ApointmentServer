@@ -73,6 +73,18 @@ router.get('/', async (req, res) => {
     }
 });
 
+//get doctors
+
+router.get('/doctors', async (req, res) => {
+    try {
+        const doctors = await User.find({ role: 'doctor' }).select('-password'); // Exclude password from response
+        res.status(200).json(doctors);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching doctors', error: error.message });
+    }
+});
+
+
 // Get a single user by ID
 router.get('/:id', async (req, res) => {
     try {

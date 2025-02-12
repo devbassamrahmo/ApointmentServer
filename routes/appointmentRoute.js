@@ -38,8 +38,10 @@ router.post('/', authenticateUser ,  async (req, res) => {
 
         await appointment.save();
         res.status(201).json({ message: 'Appointment booked successfully', appointment });
+        console.log("appointment created")
     } catch (error) {
         res.status(500).json({ message: 'Error booking appointment', error: error.message });
+        console.log("error found on app creation")
     }
 });
 
