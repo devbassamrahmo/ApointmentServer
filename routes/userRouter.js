@@ -75,7 +75,7 @@ router.get('/', async (req, res) => {
 
 //get doctors
 
-router.get('/doctors', async (req, res) => {
+router.get('/find/doctors', async (req, res) => {
     try {
         const doctors = await User.find({ role: 'doctor' }).select('-password'); // Exclude password from response
         res.status(200).json(doctors);
