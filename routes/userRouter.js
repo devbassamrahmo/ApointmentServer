@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const salt = 10;
-
+const cors = require('cors');
+router.use(cors());
 // Register a new user
 router.post('/register', async (req, res) => {
     try {
@@ -33,25 +34,26 @@ router.post('/register', async (req, res) => {
 // Login a user
 
 router.post('/login', async (req, res) => {
+    
     try {
         const { email, password } = req.body;
-
+        
         // Check if the user exists
         const user = await User.findOne({ email });
         if (!user) {
+            
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-
         // Verify password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-
+        
         // Generate JWT Token
         const token = jwt.sign(
             { id: user._id , name : user.name , role : user.role},process.env.JWT_SECRET, { expiresIn: '1h' });
-
+            
         // Remove password before sending the user object
         const { password: _, ...userWithoutPassword } = user.toObject();
 
@@ -77,7 +79,7 @@ router.get('/', async (req, res) => {
 
 router.get('/find/doctors', async (req, res) => {
     try {
-        const doctors = await User.find({ role: 'doctor' }).select('-password'); // Exclude password from response
+        const doctors = await User.find({ role: 'doctor' }).select('-password'); 
         res.status(200).json(doctors);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching doctors', error: error.message });
